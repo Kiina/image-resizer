@@ -1,5 +1,6 @@
-# Thumbnailer
-A thumbnail generator example using Minio's [listenBucketNotification API](http://docs.minio.io/docs/javascript-client-api-reference#listenBucketNotification). This is a simple example of how one can build a AWS Lambda like functionality on a laptop.
+# Image Resizer
+An automatic image Resizer forked from [Minios Thumbnailer example](https://github.com/minio/thumbnailer). It can auto resize your jpgs and create webps for them.
+It's super basic code and kinda sloppy, but it does what it should do. Feel free to contribute. It doesn't support authentication yet, so you probably don't want to expose it openly.
 
 ## Dependencies
 Dependencies are managed by [npm](https://npm.org) use `npm install`.
@@ -9,34 +10,19 @@ npm install
 ```
 
 ## Configure
-Please edit `config/development.json` with your local parameters, currently the example points to https://play.minio.io:9000
+Please edit the configs in `config/` with your local parameters.
 
-<blockquote>This example works only with Minio server using an extended API</blockquote>
 
 ## Run
-Once configured proceed to run.
+Once configured proceed to run. There is a docker-compose.yml as an example. Set your keys and run the container with `docker-compose up`.
+Activate the hook via mc kinda like this: `mc event add minio/bucketname arn:minio:sqs::_:webhook --event put --suffix .jpg`
+Now you can upload an image to your minio and see it converted.
 
 ```sh
-node thumbnail.js
-Listening for events on "images"
+node_1   | Successfully uploaded "a1a967b139071d7c4fd0acbbbf310d6a"
+node_1   | Successfully uploaded "61cbe2d150ecc39b3abc36b9d0d4a864"
+node_1   | Successfully uploaded "6d948aaf050ba90b3e7919617fb20fdf"
+node_1   | Successfully uploaded "84dca44d5b2922cde7e3fba88a6e1083"
 ```
 
-Now upload an image using `mc`
-```sh
-mc cp ./toposort/graph.jpg play/images/
-./toposort/graph.jpg:  34.29 KB / 34.29 KB ┃▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓┃ 100.00% 386.91 KB/s 0s
-```
-
-You will see thumbnail being generated after uploading the image using `mc`.
-```sh
-node thumbnail.js
-Listening for events on "images"
-Uploading new thumbail to "images-processed"
-Successfully generated "graph-thumbnail.jpg" with md5sum "ca78ee1cc48358b4dbd883a589523e54"
-```
-
-To validate if the thumbnail was created at destination bucket use `mc`.
-```sh
-mc ls play/images-processed
-[2017-01-22 23:44:51 PST]   629B graph-thumbnail.jpg
-```
+Your generated files will have the format of filename-size.jpg/webp. Don't use files with spaces as it breaks.

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  node:
+    image: node:lts
+    working_dir: /usr/src/app
+    command: node webhook.js
+    volumes:
+     - ./:/usr/src/app
+    expose:
+     - "3000"
+
+  minio:
+    image: minio/minio
+    hostname: minio
+    volumes:
+     - ./data:/export
+    environment:
+      MINIO_ACCESS_KEY:
+      MINIO_SECRET_KEY:
+      MINIO_NOTIFY_WEBHOOK_ENABLE: 1
+      MINIO_NOTIFY_WEBHOOK_ENDPOINT: http://node:3000
+    command: server /export
+    ports:
+     - 9000:9000
+    depends_on:
+     - node
